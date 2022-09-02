@@ -164,6 +164,8 @@ cython_debug/
 *.jpeg
 *.jpg
 
+*.pt
+
 # others
 .db
 Spectograms_77_24_Xethrue/Spectrograms_24GHz/05_Walking_towards_radar/Thumbs.db
