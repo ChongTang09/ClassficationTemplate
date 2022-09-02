@@ -35,7 +35,7 @@ parser.add_argument('--save_name', default='k_cross_model.pt', type=str,
 parser.add_argument('--spatial', default=True, type=bool,
                     help='True is use SpatialGate')
 
-if __name__ == '__main__':
+def main():
     args = parser.parse_args()
     print ("args", args)
 
@@ -110,3 +110,7 @@ if __name__ == '__main__':
 
     print('Performance of {} fold cross validation'.format(k))
     print("Average Training Loss: {:.3f} \t Average Test Loss: {:.3f} \t Average Training Acc: {:.2f} \t Average Test Acc: {:.2f}".format(np.mean(tl_f),np.mean(testl_f),np.mean(ta_f),np.mean(testa_f)))     
+
+
+if __name__ == '__main__':
+    main()
