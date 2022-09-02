@@ -55,7 +55,7 @@ class ChannelGate(nn.Module):
             else:
                 channel_att_sum = channel_att_sum + channel_att_raw
 
-        scale = F.sigmoid( channel_att_sum ).unsqueeze(2).unsqueeze(3).expand_as(x)
+        scale = torch.sigmoid( channel_att_sum ).unsqueeze(2).unsqueeze(3).expand_as(x)
         return x * scale
 
 def logsumexp_2d(tensor):
@@ -99,24 +99,24 @@ class AlexNet(nn.Module):
 
         self.features = nn.Sequential(
             nn.Conv2d(3, 64, (11, 11), (4, 4), (2, 2)),
-            SpatialGate(),
             nn.ReLU(True),
+            CBAM(64),
             nn.MaxPool2d((3, 3), (2, 2)),
 
             nn.Conv2d(64, 192, (5, 5), (1, 1), (2, 2)),
-            SpatialGate(),
             nn.ReLU(True),
+            CBAM(192),
             nn.MaxPool2d((3, 3), (2, 2)),
 
             nn.Conv2d(192, 384, (3, 3), (1, 1), (1, 1)),
-            SpatialGate(),
             nn.ReLU(True),
+            CBAM(384),
             nn.Conv2d(384, 256, (3, 3), (1, 1), (1, 1)),
-            SpatialGate(),
             nn.ReLU(True),
+            CBAM(256),
             nn.Conv2d(256, 256, (3, 3), (1, 1), (1, 1)),
-            SpatialGate(),
             nn.ReLU(True),
+            CBAM(256),
             nn.MaxPool2d((3, 3), (2, 2)),
         ) if spatial else nn.Sequential(
             nn.Conv2d(3, 64, (11, 11), (4, 4), (2, 2)),
