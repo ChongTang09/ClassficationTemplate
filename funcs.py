@@ -1,10 +1,13 @@
 import torch
+import numpy as np
 
 from glob import glob
 from tqdm import tqdm
 
 from PIL import Image
 from torchvision import transforms
+
+from sklearn.metrics import confusion_matrix
 
 def read_imgs_to_tensors(image_path, img_cls, resize_shape=[224, 224], num_channel=3):
     img_tensors = torch.zeros(len(glob(image_path+'/*.png')), num_channel, resize_shape[0], resize_shape[1])
@@ -65,6 +68,7 @@ def train_epoch(model,device,dataloader,loss_fn,optimizer):
 def valid_epoch(model,device,dataloader,loss_fn):
     valid_loss, val_correct = 0.0, 0
     model.eval()
+    gt, pred = [], []
     for images, labels in dataloader:
 
         images,labels = images.to(device),labels.to(device)
@@ -74,4 +78,10 @@ def valid_epoch(model,device,dataloader,loss_fn):
         scores, predictions = torch.max(output.data,1)
         val_correct+=(predictions == labels).sum().item()
 
-    return valid_loss,val_correct
+        gt = gt + labels.cpu().detach().tolist()
+        pred = pred + predictions.cpu().detach().tolist()
+        
+    cm = confusion_matrix(gt, pred)
+    cm = cm/np.sum(cm, axis=1)
+
+    return valid_loss,val_correct, cm

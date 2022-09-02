@@ -22,9 +22,9 @@ parser.add_argument('--root', default='D:/Shelly\'s/Spectograms_77_24_Xethrue/',
                     help='root folder of data')
 parser.add_argument('--subfolder', default='activity_spectogram_77GHz', type=str,
                     help='Images folder')
-parser.add_argument('--epoch', default=100, type=int,
+parser.add_argument('--epoch', default=10, type=int,
                     help='number of training epoches')
-parser.add_argument('--batch_size', default=128, type=int,
+parser.add_argument('--batch_size', default=8, type=int,
                     help='number of batch size')
 parser.add_argument('--kfolds', default=5, type=int,
                     help='number of K folders')
@@ -72,11 +72,11 @@ def main():
         optimizer = Adam(model.parameters(), lr=args.lr)
         criterion = nn.CrossEntropyLoss()
 
-        history = {'train_loss': [], 'test_loss': [],'train_acc':[],'test_acc':[]}
+        history = {'train_loss': [], 'test_loss': [],'train_acc':[],'test_acc':[], 'cms': []}
 
         for epoch in range(num_epochs):
-            train_loss, train_correct=funcs.train_epoch(model,device,train_loader,criterion,optimizer)
-            test_loss, test_correct=funcs.valid_epoch(model,device,test_loader,criterion)
+            train_loss, train_correct = funcs.train_epoch(model,device,train_loader,criterion,optimizer)
+            test_loss, test_correct, cm = funcs.valid_epoch(model,device,test_loader,criterion)
 
             train_loss = train_loss / len(train_loader.sampler)
             train_acc = train_correct / len(train_loader.sampler) * 100
@@ -93,24 +93,38 @@ def main():
             history['test_loss'].append(test_loss)
             history['train_acc'].append(train_acc)
             history['test_acc'].append(test_acc)
+            history['cms'].append(cm)
 
         foldperf['fold{}'.format(fold+1)] = history  
 
     torch.save(model, args.save_name)
 
     testl_f,tl_f,testa_f,ta_f=[],[],[],[]
+    cms = []
     k=args.kfolds
     for f in range(1,k+1):
 
-        tl_f.append(np.mean(foldperf['fold{}'.format(f)]['train_loss']))
-        testl_f.append(np.mean(foldperf['fold{}'.format(f)]['test_loss']))
+        best_idx = foldperf['fold{}'.format(f)]['test_acc'].index((max(foldperf['fold{}'.format(f)]['test_acc'])))
+        
+        tl_f.append(foldperf['fold{}'.format(f)]['train_loss'][best_idx])
+        testl_f.append(foldperf['fold{}'.format(f)]['test_loss'][best_idx])
 
-        ta_f.append(np.mean(foldperf['fold{}'.format(f)]['train_acc']))
-        testa_f.append(np.mean(foldperf['fold{}'.format(f)]['test_acc']))
+        ta_f.append(foldperf['fold{}'.format(f)]['train_acc'][best_idx])
+        testa_f.append(foldperf['fold{}'.format(f)]['test_acc'][best_idx])
+        
+        cms.append(foldperf['fold{}'.format(f)]['cms'][best_idx])
 
     print('Performance of {} fold cross validation'.format(k))
-    print("Average Training Loss: {:.3f} \t Average Test Loss: {:.3f} \t Average Training Acc: {:.2f} \t Average Test Acc: {:.2f}".format(np.mean(tl_f),np.mean(testl_f),np.mean(ta_f),np.mean(testa_f)))     
+    print("Minmum Training Loss: {:.3f} Minmum Test Loss: {:.3f} Average Best Training Acc: {:.2f} Average Best Test Acc: {:.2f}".format(np.mean(tl_f),np.mean(testl_f),np.mean(ta_f),np.mean(testa_f)))     
+    print('Confusion Matrix:')
+    np.set_printoptions(precision=3)
+    print(sum(cms)/len(cms))
 
+    return foldperf
 
 if __name__ == '__main__':
-    main()
+    foldperf = main()
+    
+        
+    
+        
