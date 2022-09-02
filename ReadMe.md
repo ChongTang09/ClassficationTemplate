@@ -24,6 +24,9 @@ parser.add_argument('--spatial', default=True, type=bool,
                     help='True is use SpatialGate')
 ```
 
+# Required Pkgs
+See requirement.txt
+
 # Reference
 Some codes in model.py are created by:
 https://github.com/Jongchan/attention-module/tree/c06383c514ab0032d044cc6fcd8c8207ea222ea7
