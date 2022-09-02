@@ -1,7 +1,5 @@
 # Run Command
-
-1. Modify --root, --subfolder and --save_name in the code.
-2. run: python train.py --epoch 10 --batch_size 8 --kfolds 5 --lr 1e-3 --spatial True
+python train.py --epoch 10 --batch_size 8 --kfolds 5 --lr 1e-3 --spatial True --root YOUR_DATA_ROOT_PATH --subfolder YOUR_DATA_FOLDER --save_name YOUR_MODEL_SAVED_NAME
 
 # Reference
 Some codes in model.py are created by:
