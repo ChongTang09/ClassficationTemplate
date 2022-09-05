@@ -1,6 +1,6 @@
 # Run Command
 ```
-python train.py --epoch 10 --batch_size 8 --kfolds 5 --lr 1e-3 --spatial True --root YOUR_DATA_ROOT_PATH --subfolder YOUR_DATA_FOLDER --save_name YOUR_MODEL_SAVED_NAME
+python train.py --epoch 10 --batch_size 8 --kfolds 5 --lr 1e-3 --spatial True --pretrain True --root YOUR_DATA_ROOT_PATH --subfolder YOUR_DATA_FOLDER --save_name YOUR_MODEL_SAVED_NAME
 ```
 
 # Args
@@ -21,7 +21,9 @@ parser.add_argument('--lr', default=1e-3, type=float,
 parser.add_argument('--save_name', default='k_cross_model.pt', type=str,
                     help='the name of saved model')
 parser.add_argument('--spatial', default=True, type=bool,
-                    help='True is use SpatialGate')
+                    help='True is using SpatialGate')
+parser.add_argument('--pretrain', default=True, type=bool,
+                    help='True is loading pretrained model')
 ```
 
 # Required Pkgs
