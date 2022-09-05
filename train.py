@@ -33,7 +33,9 @@ parser.add_argument('--lr', default=1e-3, type=float,
 parser.add_argument('--save_name', default='k_cross_model.pt', type=str,
                     help='the name of saved model')
 parser.add_argument('--spatial', default=True, type=bool,
-                    help='True is use SpatialGate')
+                    help='True is using SpatialGate')
+parser.add_argument('--pretrain', default=True, type=bool,
+                    help='True is loading pretrained model')
 
 def main():
     args = parser.parse_args()
@@ -67,7 +69,7 @@ def main():
         train_loader = DataLoader(dataset, batch_size=batch_size, sampler=train_sampler)
         test_loader = DataLoader(dataset, batch_size=batch_size, sampler=test_sampler)
         
-        model = AlexNet(num_classes=len(classes), spatial=args.spatial)
+        model = AlexNet(num_classes=len(classes), spatial=args.spatial, pre_trained=args.pretrain)
         model.to(device)
         optimizer = Adam(model.parameters(), lr=args.lr)
         criterion = nn.CrossEntropyLoss()

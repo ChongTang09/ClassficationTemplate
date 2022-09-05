@@ -94,58 +94,49 @@ class CBAM(nn.Module):
         return x_out
 
 class AlexNet(nn.Module):
-    def __init__(self, num_classes, spatial=True):
+    def __init__(self, num_classes, spatial=True, pre_trained=True):
         super(AlexNet, self).__init__()
 
+        __alexnet_arc = ['features', 'avgpool', 'classifier']
+
+        model = torch.hub.load('pytorch/vision:v0.10.0', 'alexnet', pretrained=pre_trained)
+
+        cnn = model.features
+        cls = model.classifier
+
         self.features = nn.Sequential(
-            nn.Conv2d(3, 64, (11, 11), (4, 4), (2, 2)),
-            nn.ReLU(True),
+            cnn[0], # Conv2d(3, 64, kernel_size=(11, 11), stride=(4, 4), padding=(2, 2))
+            cnn[1], # ReLU(inplace=True)
             CBAM(64),
-            nn.MaxPool2d((3, 3), (2, 2)),
+            cnn[2], # MaxPool2d(kernel_size=3, stride=2, padding=0, dilation=1, ceil_mode=False)
 
-            nn.Conv2d(64, 192, (5, 5), (1, 1), (2, 2)),
-            nn.ReLU(True),
+            cnn[3], # Conv2d(64, 192, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2))
+            cnn[4], # ReLU(inplace=True)
             CBAM(192),
-            nn.MaxPool2d((3, 3), (2, 2)),
+            cnn[5], # MaxPool2d(kernel_size=3, stride=2, padding=0, dilation=1, ceil_mode=False)
 
-            nn.Conv2d(192, 384, (3, 3), (1, 1), (1, 1)),
-            nn.ReLU(True),
+            cnn[6], # Conv2d(192, 384, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+            cnn[7], # ReLU(inplace=True)
             CBAM(384),
-            nn.Conv2d(384, 256, (3, 3), (1, 1), (1, 1)),
-            nn.ReLU(True),
+            cnn[8], # Conv2d(384, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+            cnn[9], # ReLU(inplace=True)
             CBAM(256),
-            nn.Conv2d(256, 256, (3, 3), (1, 1), (1, 1)),
-            nn.ReLU(True),
+            cnn[10], # Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+            cnn[11], # ReLU(inplace=True)
             CBAM(256),
-            nn.MaxPool2d((3, 3), (2, 2)),
-        ) if spatial else nn.Sequential(
-            nn.Conv2d(3, 64, (11, 11), (4, 4), (2, 2)),
-            nn.ReLU(True),
-            nn.MaxPool2d((3, 3), (2, 2)),
+            cnn[12], # MaxPool2d(kernel_size=3, stride=2, padding=0, dilation=1, ceil_mode=False)
+        ) if spatial else cnn
 
-            nn.Conv2d(64, 192, (5, 5), (1, 1), (2, 2)),
-            nn.ReLU(True),
-            nn.MaxPool2d((3, 3), (2, 2)),
-
-            nn.Conv2d(192, 384, (3, 3), (1, 1), (1, 1)),
-            nn.ReLU(True),
-            nn.Conv2d(384, 256, (3, 3), (1, 1), (1, 1)),
-            nn.ReLU(True),
-            nn.Conv2d(256, 256, (3, 3), (1, 1), (1, 1)),
-            nn.ReLU(True),
-            nn.MaxPool2d((3, 3), (2, 2)),
-        )
-
-        self.avgpool = nn.AdaptiveAvgPool2d((6, 6))
+        self.avgpool = model.avgpool
 
         self.classifier = nn.Sequential(
-            nn.Dropout(0.5),
-            nn.Linear(256 * 6 * 6, 4096),
-            nn.ReLU(True),
-            nn.Dropout(0.5),
-            nn.Linear(4096, 4096),
-            nn.ReLU(True),
-            nn.Linear(4096, num_classes),
+            cls[0], # Dropout(p=0.5, inplace=False)
+            cls[1], # Linear(in_features=9216, out_features=4096, bias=True)
+            cls[2], # ReLU(inplace=True)
+            cls[3], # Dropout(p=0.5, inplace=False)
+            cls[4], # Linear(in_features=4096, out_features=4096, bias=True)
+            cls[5], # ReLU(inplace=True)
+            nn.Linear(in_features=4096, out_features=num_classes, bias=True)
         )
 
     def forward(self, x):
