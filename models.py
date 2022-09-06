@@ -94,12 +94,12 @@ class CBAM(nn.Module):
         return x_out
 
 class AlexNet(nn.Module):
-    def __init__(self, num_classes, spatial=True, pre_trained=True):
+    def __init__(self, num_classes, spatial=True, pre_trained='True'):
         super(AlexNet, self).__init__()
 
         __alexnet_arc = ['features', 'avgpool', 'classifier']
 
-        model = torch.hub.load('pytorch/vision:v0.10.0', 'alexnet', pretrained=pre_trained)
+        model = torch.hub.load('pytorch/vision:v0.10.0', 'alexnet', pretrained=True if pre_trained=='True' else False)
 
         cnn = model.features
         cls = model.classifier
@@ -125,7 +125,7 @@ class AlexNet(nn.Module):
             cnn[11], # ReLU(inplace=True)
             CBAM(256),
             cnn[12], # MaxPool2d(kernel_size=3, stride=2, padding=0, dilation=1, ceil_mode=False)
-        ) if spatial else cnn
+        ) if spatial=='True' else cnn
 
         self.avgpool = model.avgpool
 

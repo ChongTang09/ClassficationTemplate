@@ -32,9 +32,9 @@ parser.add_argument('--lr', default=1e-3, type=float,
                     help='learning rate')
 parser.add_argument('--save_name', default='k_cross_model.pt', type=str,
                     help='the name of saved model')
-parser.add_argument('--spatial', default=True, type=bool,
+parser.add_argument('--spatial', default='True', type=str,
                     help='True is using SpatialGate')
-parser.add_argument('--pretrain', default=True, type=bool,
+parser.add_argument('--pretrain', default='True', type=str,
                     help='True is loading pretrained model')
 
 def main():
